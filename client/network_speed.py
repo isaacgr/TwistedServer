@@ -1,6 +1,4 @@
 import speedtest
-from twisted.internet import defer, threads, reactor
-
 
 class GetSpeed():
     def get_speed(self):
@@ -15,16 +13,3 @@ class GetSpeed():
             'upload': res["upload"],
             'ping': res["ping"]
         }
-
-    def print_data(self,result):
-        print result
-        reactor.stop()
-
-    def start(self):
-        d = threads.deferToThread(self.get_speed)
-        d.addCallback(self.print_data)
-
-
-#g = GetSpeed()
-#g.start()
-#reactor.run()
