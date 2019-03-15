@@ -8,8 +8,7 @@ agent = Agent(reactor)
 
 class HttpClient(object):
     def __init__(self):
-        self.headers = {'User-Agent': ['Twisted Client'],
-                     'Content-Type': ['application/json']}
+        pass
 
     def post(self, url, body={}, headers={}):
         if not headers:
