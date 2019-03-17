@@ -1,15 +1,17 @@
 from client.client import HttpClient
 from client.network_speed import GetSpeed
-from twisted.internet import reactor, threads
+from client.internet_addr import InterAddr
+from twisted.internet import reactor, threads, defer
 from twisted.web.client import readBody
 
 
-def post_speed(result):
+def post_data(result):
     headers = {'User-Agent': ['Twisted Client'],
                      'Content-Type': ['application/json']}
 
     client = HttpClient()
-    d = client.post('http://192.168.2.21:3000/api/data', body=result, headers=headers)
+    for (success, value) in result:
+        d = client.post('http://192.168.2.21:3000/api/data', body=value, headers=headers)
 
     d.addCallback(_cb_post)
     d.addErrback(_eb_post)
@@ -31,9 +33,15 @@ def failure(error):
     print 'Error: %s' % error
 
 def main():
+   dl = []
    network = GetSpeed()
-   d = threads.deferToThread(network.get_speed)
-   d.addCallback(post_speed)
+   int_addr = InterAddr()
+   d1 = threads.deferToThread(network.get_speed)
+   d2 = threads.deferToThread(int_addr.get_addr)
+   dl.append(d1)
+   dl.append(d2)
+   d = defer.DeferredList(dl)
+   d.addCallback(post_data)
    d.addErrback(failure)
 
 if __name__=='__main__':
