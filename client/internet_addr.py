@@ -12,6 +12,11 @@ class InterAddr(object):
         output, error = p.communicate()
         output = output.rstrip("\n")
         if not p.returncode:
-            return {'ip': output}
+            return {
+                "type": "network address",
+                "data":{
+                    "ip": output
+                    }
+                }
         return [error, p.returncode]
 

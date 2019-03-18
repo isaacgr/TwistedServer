@@ -9,7 +9,10 @@ class GetSpeed():
         s.upload()
         res = s.results.dict()
         return {
-            'download': res["download"],
-            'upload': res["upload"],
-            'ping': res["ping"]
+            "type": "network speed",
+            "data": {
+                'download': res["download"],
+                'upload': res["upload"],
+                'ping': res["ping"]
+            }
         }

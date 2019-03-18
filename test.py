@@ -12,9 +12,8 @@ def post_data(result):
     client = HttpClient()
     for (success, value) in result:
         d = client.post('http://192.168.2.21:3000/api/data', body=value, headers=headers)
-
-    d.addCallback(_cb_post)
-    d.addErrback(_eb_post)
+        d.addCallback(_cb_post)
+        d.addErrback(_eb_post)
 
 def _cb_post(response):
     d = readBody(response)
@@ -25,12 +24,11 @@ def _eb_post(error):
     reactor.stop()
 
 def _cb_body(body):
-    print 'Got response\n'
     print body
-    reactor.stop()
 
 def failure(error):
     print 'Error: %s' % error
+    reactor.stop()
 
 def main():
    dl = []
