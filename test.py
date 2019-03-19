@@ -10,14 +10,19 @@ def post_data(result):
                      'Content-Type': ['application/json']}
 
     client = HttpClient()
-    for (success, value) in result:
+    d = defer.Deferred()
+
+    for value in result:
         d = client.post('http://192.168.2.21:3000/api/data', body=value, headers=headers)
         d.addCallback(_cb_post)
         d.addErrback(_eb_post)
 
+    return d
+
 def _cb_post(response):
     d = readBody(response)
     d.addCallback(_cb_body)
+    return d
 
 def _eb_post(error):
     print 'POST Error: %s' % error
@@ -25,6 +30,7 @@ def _eb_post(error):
 
 def _cb_body(body):
     print body
+    return defer.succeed(body)
 
 def failure(error):
     print 'Error: %s' % error
@@ -38,8 +44,9 @@ def main():
    d2 = threads.deferToThread(int_addr.get_addr)
    dl.append(d1)
    dl.append(d2)
-   d = defer.DeferredList(dl)
+   d = defer.gatherResults(dl)
    d.addCallback(post_data)
+   d.addCallback(lambda _: reactor.stop())
    d.addErrback(failure)
 
 if __name__=='__main__':
