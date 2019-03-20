@@ -3,7 +3,7 @@ from client.network_speed import GetSpeed
 from client.internet_addr import InterAddr
 from twisted.internet import reactor, threads, defer
 from twisted.web.client import readBody
-
+import json
 
 def post_data(result):
     headers = {'User-Agent': ['Twisted Client'],
@@ -29,7 +29,7 @@ def _eb_post(error):
     reactor.stop()
 
 def _cb_body(body):
-    print body
+    print json.loads(body)
     return defer.succeed(body)
 
 def failure(error):

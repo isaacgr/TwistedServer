@@ -13,7 +13,8 @@ class InterAddr(object):
         output = output.rstrip("\n")
         if not p.returncode:
             return {
-                "type": "network address",
+                "type": "utility",
+                "description": "network address",
                 "data":{
                     "ip": output
                     }
