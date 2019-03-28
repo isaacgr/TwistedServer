@@ -1,8 +1,13 @@
 import speedtest
+from logger import Logger
 
-class GetSpeed():
+class GetSpeed(object):
+
+    def __init__(self):
+        pass
+
+    @Logger(message='Getting internet speed')
     def get_speed(self):
-        print 'Getting internet speed'
         s = speedtest.Speedtest()
         s.get_best_server()
         s.download()
