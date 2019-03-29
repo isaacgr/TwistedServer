@@ -1,14 +1,16 @@
 from twisted.internet import defer, reactor
 from subprocess import Popen, PIPE
-from logger import Logger
+import logging
+
+log = logging.getLogger(__name__)
 
 class InterAddr(object):
 
     def __init__(self):
         pass
 
-    @Logger(message='Getting IP Address')
     def get_addr(self):
+        log.info('Getting IP Address')
         p = Popen(["curl", "https://ipinfo.io/ip"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         output, error = p.communicate()
         output = output.rstrip("\n")
