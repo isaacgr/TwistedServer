@@ -15,11 +15,13 @@ class GetSpeed(object):
         s.download()
         s.upload()
         res = s.results.dict()
+        download = "%.2f Mbps" % (float(res['download'])/1000000)
+        upload = "%.2f Mbps" % (float(res['upload'])/1000000)
         return {
             "type": "info",
             "description": "network speed",
             "data": {
-                'download': res["download"],
-                'upload': res["upload"]
+                'download': download,
+                'upload': upload
             }
         }
