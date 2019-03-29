@@ -20,7 +20,6 @@ class GetSpeed(object):
             "description": "network speed",
             "data": {
                 'download': res["download"],
-                'upload': res["upload"],
-                'ping': res["ping"]
+                'upload': res["upload"]
             }
         }
