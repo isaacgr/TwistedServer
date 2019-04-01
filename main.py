@@ -17,7 +17,7 @@ PORT = None
 PATH = '/api/data'
 
 
-class WebServer(object):
+class WebClient(object):
 
     def __init__(self, url=URL, port=PORT, path=PATH):
         self.url = url + ':'+ str(port) + path
@@ -50,7 +50,7 @@ class WebServer(object):
         # reactor.stop()
 
 def main():
-    server = WebServer(port=3000)
+    server = WebClient(port=3000)
     network = GetSpeed()
     int_addr = InterAddr()
     d1 = threads.deferToThread(network.get_speed)
