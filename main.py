@@ -1,67 +1,67 @@
-from client.client import HttpClient
+from client.web_client import WebClient
 from client.network_speed import GetSpeed
 from client.internet_addr import InterAddr
 from twisted.internet import reactor, threads, defer, task
 from twisted.web.client import readBody
 import json
+import argparse
 import logging
 
 FORMAT = "%(asctime)s:%(levelname)s:%(name)s:%(message)s"
 datefmt = "%Y-%m-%d-%H:%M:%S"
-logging.basicConfig(filename='/var/log/webserver.log', level=logging.INFO,\
-    format=FORMAT, datefmt=datefmt)
-log = logging.getLogger(__name__)
-
-URL = 'http://192.168.2.21'
-PORT = None
-PATH = '/api/data'
+logging.basicConfig(filename='webserver.log', level=logging.INFO,
+                    format=FORMAT, datefmt=datefmt)
 
 
-class WebClient(object):
+def parse_commandline():
+    parser = argparse.ArgumentParser()
 
-    def __init__(self, url=URL, port=PORT, path=PATH):
-        self.url = url + ':'+ str(port) + path
-        self.headers = {'User-Agent': ['Twisted Client'],
-                         'Content-Type': ['application/json']}
+    parser.add_argument(
+        '--host',
+        default='http://192.168.2.21',
+        metavar='HOST',
+        help='Host URL to connect to [%(default)s]'
+    )
 
-    def post_data(self, result):
-        client = HttpClient()
-        d = client.post(self.url, body=result, headers=self.headers)
-        d.addCallback(self._cb_post)
-        d.addErrback(self._eb_post)
-        return d
+    parser.add_argument(
+        '--port',
+        default=3000,
+        metavar='PORT',
+        help='Port of server to connect to [%(default)s]'
+    )
 
-    def _cb_post(self, response):
-        log.info('Post successful')
-        d = readBody(response)
-        d.addCallback(self._cb_body)
-        return d
+    parser.add_argument(
+        '--path',
+        default='/api/data',
+        metavar='PATH',
+        help='Path of server, if any [%(default)s]'
+    )
 
-    def _eb_post(self, error):
-        log.info('POST Error: %s' % error)
-        # reactor.stop()
+    return parser.parse_args()
 
-    def _cb_body(self, body):
-        log.info('Response: %s' % json.loads(body))
-        return defer.succeed(body)
-
-    def failure(self, error):
-        log.info('Error: %s' % error)
-        # reactor.stop()
 
 def main():
-    server = WebClient(port=3000)
+    options = parse_commandline()
+
+    host = options.host
+    port = options.port
+    path = options.path
+
+    server = WebClient(host, port, path)
     network = GetSpeed()
     int_addr = InterAddr()
+
     d1 = threads.deferToThread(network.get_speed)
     d2 = threads.deferToThread(int_addr.get_addr)
     d1.addCallback(server.post_data)
     d2.addCallback(server.post_data)
-    # d.addCallback(lambda _: reactor.stop())
     d1.addErrback(server.failure)
     d2.addErrback(server.failure)
 
-if __name__=='__main__':
     t = task.LoopingCall(main)
     t.start(1200)
+
+
+if __name__ == '__main__':
+    main()
     reactor.run()
