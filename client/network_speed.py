@@ -3,6 +3,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 class GetSpeed(object):
 
     def __init__(self):
@@ -17,6 +18,7 @@ class GetSpeed(object):
         res = s.results.dict()
         download = "%.2f Mbps" % (float(res['download'])/1000000)
         upload = "%.2f Mbps" % (float(res['upload'])/1000000)
+        log.info('Got speed:[%s DOWN, %s UP]' % (download, upload))
         return {
             "type": "info",
             "description": "network speed",

@@ -10,13 +10,14 @@ log = logging.getLogger(__name__)
 
 class WebClient(object):
 
-    def __init__(self, url, port, path):
-        self.url = url + ':' + str(port) + path
+    def __init__(self, scheme, url, port, path):
+        self.url = scheme + url + ':' + str(port) + path
         self.headers = {'User-Agent': ['Twisted Client'],
                         'Content-Type': ['application/json']}
 
     def post_data(self, result):
         client = HttpClient()
+        log.info('POST request: %s' % result)
         d = client.post(self.url, body=result, headers=self.headers)
         d.addCallback(self._cb_post)
         d.addErrback(self._eb_post)
