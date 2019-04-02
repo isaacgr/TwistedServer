@@ -19,20 +19,17 @@ class WebClient(object):
         client = HttpClient()
         log.info('POST request: %s' % result)
         d = client.post(self.url, body=result, headers=self.headers)
-        d.addCallback(self._cb_post)
-        d.addErrback(self._eb_post)
+        d.addCallback(self.parse_response, 'POST')
+        d.addErrback(self.failure)
         return d
 
-    def _cb_post(self, response):
-        log.info('Post successful')
+    def parse_response(self, response, method='POST'):
+        log.info('{} successful'.format(method))
         d = readBody(response)
-        d.addCallback(self._cb_body)
+        d.addCallback(self._cb_parse_response)
         return d
 
-    def _eb_post(self, error):
-        log.info('POST Error: %s' % error)
-
-    def _cb_body(self, body):
+    def _cb_parse_response(self, body):
         log.info('Response: %s' % json.loads(body))
         return defer.succeed(body)
 

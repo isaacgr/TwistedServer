@@ -6,13 +6,14 @@ from bytesprod import BytesProducer
 
 agent = Agent(reactor)
 
+
 class HttpClient(object):
     def __init__(self):
         pass
 
     def post(self, url, body={}, headers={}):
         if not headers:
-            headers = self.headers
+            raise Exception('Missing headers')
         request = BytesProducer(json.dumps(body))
         d = agent.request(
             'POST',
