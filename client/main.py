@@ -1,7 +1,7 @@
-from client.web_client import WebClient
-from client.network_speed import GetSpeed
-from client.internet_addr import InterAddr
-from twisted.internet import reactor, threads, defer
+from web_client import WebClient
+from network_speed import GetSpeed
+from internet_addr import InterAddr
+from twisted.internet import reactor, threads, defer, task
 from twisted.web.client import readBody
 import json
 import argparse
@@ -30,7 +30,7 @@ def parse_commandline():
 
     parser.add_argument(
         '--port',
-        default=3000,
+        default=None,
         metavar='PORT',
         help='Port of server to connect to [%(default)s]'
     )
@@ -39,14 +39,14 @@ def parse_commandline():
         '--path',
         default='/api/data',
         metavar='PATH',
-        help='Path of server, if any [%(default)s]'
+        help='Path for the server, if any [%(default)s]'
     )
 
     parser.add_argument(
         '--log',
         default='/var/log/webserver.log',
         metavar='FILENAME',
-        help='Path of server, if any [%(default)s]'
+        help='Logfile of client, if any [%(default)s]'
     )
 
     return parser.parse_args()
@@ -77,5 +77,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    t = task.LoopingCall(main)
+    mainLoop = t.start(1200)
     reactor.run()
