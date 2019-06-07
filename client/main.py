@@ -1,14 +1,16 @@
 from web_client import WebClient
 from network_speed import GetSpeed
 from internet_addr import InterAddr
-from twisted.internet import reactor, threads, defer, task
+from twisted.internet import reactor, threads, defer, reactor
 from twisted.web.client import readBody
 import json
 import argparse
 import logging
+import sys
 
 FORMAT = "%(asctime)s:%(levelname)s:%(name)s:%(message)s"
 datefmt = "%Y-%m-%d-%H:%M:%S"
+log = logging.getLogger(__name__)
 
 
 def parse_commandline():
@@ -64,19 +66,29 @@ def main():
     logging.basicConfig(filename=logfile, level=logging.INFO,
                         format=FORMAT, datefmt=datefmt)
 
-    server = WebClient(scheme, host, port, path)
-    network = GetSpeed()
-    int_addr = InterAddr()
+    log.info('Starting poll loop')
+    loop(scheme, host, port, path)
 
-    d1 = threads.deferToThread(network.get_speed)
-    d2 = threads.deferToThread(int_addr.get_addr)
-    d1.addCallback(server.post_data)
-    d2.addCallback(server.post_data)
-    d1.addErrback(server.failure)
-    d2.addErrback(server.failure)
+
+def loop(scheme, host, port, path):
+
+    try:
+        server = WebClient(scheme, host, port, path)
+        network = GetSpeed()
+        int_addr = InterAddr()
+
+        d1 = threads.deferToThread(network.get_speed)
+        d2 = threads.deferToThread(int_addr.get_addr)
+        d1.addCallback(server.post_data)
+        d2.addCallback(server.post_data)
+        d1.addErrback(server.failure)
+        d2.addErrback(server.failure)
+    except Exception:
+        log.critical('Uncaught exception: ', exc_info=sys.exc_info())
+
+    reactor.callLater(1200, loop, scheme, host, port, path)
 
 
 if __name__ == '__main__':
-    t = task.LoopingCall(main)
-    mainLoop = t.start(1200)
+    main()
     reactor.run()
